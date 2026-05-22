@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morning Structure Agent - Your Daily Compass</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(76, 175, 80, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(33, 150, 243, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4caf50 0%, #21a3f3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #999;
+            font-weight: 500;
+        }
+
+        /* Mood selector */
+        .mood-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out 0.2s both;
+        }
+
+        .mood-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .mood-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mood-btn {
+            padding: 12px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .mood-btn:hover {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .mood-btn.active {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            border-color: #4caf50;
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Tasks section */
+        .tasks-section {
+            animation: fadeIn 1s ease-out 0.4s both;
+        }
+
+        .task-group {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(33, 150, 243, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .task-group h3 {
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            color: #21a3f3;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-group h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to bottom, #21a3f3, transparent);
+            border-radius: 2px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: rgba(76, 175, 80, 0.08);
+            transform: translateX(4px);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4caf50;
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .task-item.completed .checkbox {
+            background: #4caf50;
+        }
+
+        .checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .task-item.completed .checkbox::after {
+            opacity: 1;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #e0e0e0;
+            word-break: break-word;
+        }
+
+        .task-time {
+            font-size: 0.8rem;
+            color: #999;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        /* Motivation message */
+        .motivation-box {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(33, 150, 243, 0.15) 100%);
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            animation: slideUp 0.8s ease-out 0.6s both;
+            font-style: italic;
+            color: #c0c0c0;
+            line-height: 1.6;
+        }
+
+        /* Progress bar */
+        .progress-section {
+            margin-top: 30px;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #21a3f3);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .mood-buttons {
+                gap: 8px;
+            }
+
+            .mood-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+
+            .task-group {
+                padding: 18px;
+            }
+        }
+
+        /* Reset button */
+        .reset-btn {
+            display: block;
+            margin: 30px auto 0;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #999;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #e0e0e0;
+            border-color: #999;
+        }
+
+        .time-display {
+            text-align: center;
+            color: #999;
+            font-size: 0.85rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌅 Your Morning Compass</h1>
+            <p class="subtitle">A structure to navigate your day with intention</p>
+        </header>
+
+        <div class="mood-section">
+            <h2>How are you feeling this morning?</h2>
+            <div class="mood-buttons">
+                <button class="mood-btn" onclick="selectMood('deep-depression')">Very Low (In Bed)</button>
+                <button class="mood-btn" onclick="selectMood('moderate-depression')">Low (Struggling)</button>
+                <button class="mood-btn" onclick="selectMood('neutral')">Neutral (Getting By)</button>
+                <button class="mood-btn" onclick="selectMood('good')">Better (Functional)</button>
+                <button class="mood-btn" onclick="selectMood('energetic')">Energetic (Driven)</button>
+            </div>
+        </div>
+
+        <div class="tasks-section" id="tasksContainer" style="display: none;">
+            <!-- Tasks will be generated here based on mood -->
+        </div>
+
+        <div class="progress-section" id="progressSection" style="display: none;">
+            <div class="progress-label">
+                <span>Today's Progress</span>
+                <span id="progressText">0/0</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="motivation-box" id="motivationBox" style="display: none;"></div>
+
+        <button class="reset-btn" onclick="resetDay()">Reset for Tomorrow</button>
+
+        <div class="time-display" id="timeDisplay"></div>
+    </div>
+
+    <script>
+        let currentMood = null;
+        let completedTasks = {};
+
+        const tasksByMood = {
+            'deep-depression': {
+                motivation: "You're in survival mode. That's okay. The smallest movement is a victory. Just breathe.",
+                groups: [
+                    {
+                        title: 'Right Now (5-10 min)',
+                        tasks: [
+                            { text: 'Drink one glass of water', time: '5 min' },
+                            { text: 'Open the curtains or go near a window', time: '2 min' },
+                            { text: 'Change position — sit up or step outside for 30 seconds', time: '2 min' }
+                        ]
+                    },
+                    {
+                        title: 'Before Noon (10-15 min)',
+                        tasks: [
+                            { text: 'Eat something small (not what you "should" eat — what you can eat)', time: '5 min' },
+                            { text: 'Take a 5-minute walk, even around your room', time: '5 min' },
+                            { text: 'Text or message one person — even "I\'m struggling"', time: '2 min' }
+                        ]
+                    },
+                    {
+                        title: 'Afternoon (Hold the line)',
+                        tasks: [
+                            { text: 'Do ONE thing that isn\'t lying down (watch a video, listen to music, sit outside)', time: 'Any amount' },
+                            { text: 'If you shower, that\'s a huge win. If not, that\'s fine too.', time: 'Optional' },
+                            { text: 'Write down one thought that won\'t leave you alone (your questions matter)', time: '5 min' }
+                        ]
+                    }
+                ]
+            },
+            'moderate-depression': {
+                motivation: "You're fighting through fog. That takes real strength. Each small step builds momentum.",
+                groups: [
+                    {
+                        title: 'Morning Anchor (20-30 min)',
+                        tasks: [
+                            { text: 'Shower or wash face and hands', time: '10 min' },
+                            { text: 'Eat breakfast — protein + something you like', time: '10 min' },
+                            { text: 'Step outside for fresh air, even 5 minutes', time: '5 min' }
+                        ]
+                    },
+                    {
+                        title: 'Mid-Morning Focus (30-45 min)',
+                        tasks: [
+                            { text: 'One task requiring focus — work, learning, or creative work', time: '25 min' },
+                            { text: 'Take a break: stretch, walk, or look away from screens', time: '5 min' },
+                            { text: 'Write or journal about what\'s weighing on you (don\'t judge it)', time: '15 min' }
+                        ]
+                    },
+                    {
+                        title: 'Afternoon (Momentum building)',
+                        tasks: [
+                            { text: 'Lunch — eat something nourishing', time: '15 min' },
+                            { text: 'One more focused activity or movement', time: '30 min' },
+                            { text: 'Social connection — call, text, or be around someone', time: '10 min' }
+                        ]
+                    }
+                ]
+            },
+            'neutral': {
+                motivation: "You're stable. This is your chance to build small wins that compound. Focus on consistency, not perfection.",
+                groups: [
+                    {
+                        title: 'Morning Routine (45-60 min)',
+                        tasks: [
+                            { text: 'Wake up at same time (even on rest days)', time: '0 min (anchor)' },
+                            { text: 'Hydrate, eat, move', time: '30 min' },
+                            { text: 'One grounding practice: meditation, walk, or journaling', time: '10 min' }
+                        ]
+                    },
+                    {
+                        title: 'Deep Work Block (60-90 min)',
+                        tasks: [
+                            { text: 'Most important task of the day (your real work)', time: '60 min' },
+                            { text: 'No phone, no distraction. One thing. Fully present.', time: 'Focus time' },
+                            { text: 'Reflect: What did I learn? What friction came up?', time: '5 min' }
+                        ]
+                    },
+                    {
+                        title: 'Afternoon & Evening',
+                        tasks: [
+                            { text: 'Lunch + movement (10-15 min walk)', time: '30 min' },
+                            { text: 'Secondary work or learning project', time: '45 min' },
+                            { text: 'Connection time: person, hobby, or creation', time: '30 min' },
+                            { text: 'Evening: prep for tomorrow, wind down, in bed by set time', time: '60 min' }
+                        ]
+                    }
+                ]
+            },
+            'good': {
+                motivation: "You have energy and clarity. Use it wisely. Channel it into what matters, not just what feels good.",
+                groups: [
+                    {
+                        title: 'Morning Setup (45 min)',
+                        tasks: [
+                            { text: 'Morning routine + cold water or exercise', time: '30 min' },
+                            { text: 'Set 3 priorities for the day (not 10)', time: '5 min' },
+                            { text: 'Protect your energy — say no to distractions', time: '10 min' }
+                        ]
+                    },
+                    {
+                        title: 'Deep Work (2-3 hours total)',
+                        tasks: [
+                            { text: 'First deep work block on your most important project', time: '90 min' },
+                            { text: 'Second block on secondary goal', time: '60 min' },
+                            { text: 'Measure progress: what did I ship? What did I learn?', time: '10 min' }
+                        ]
+                    },
+                    {
+                        title: 'Afternoon Momentum',
+                        tasks: [
+                            { text: 'Physical activity (not punishment, but celebration)', time: '30-45 min' },
+                            { text: 'Social or collaborative work', time: '60 min' },
+                            { text: 'Skill development or learning', time: '30 min' }
+                        ]
+                    }
+                ]
+            },
+            'energetic': {
+                motivation: "Your mind is alive. This is the time to capture your ideas and channel the energy into something lasting.",
+                groups: [
+                    {
+                        title: 'Channel Your Energy Wisely',
+                        tasks: [
+                            { text: 'FIRST: Write down all the ideas flooding your mind (capture them)', time: '10 min' },
+                            { text: 'Get grounded: cold shower, food, water, 10 min outside', time: '20 min' },
+                            { text: 'Notice: Are you speeding up or is this sustainable? Check your sleep.', time: '5 min' }
+                        ]
+                    },
+                    {
+                        title: 'Directed Intensity',
+                        tasks: [
+                            { text: 'Choose ONE project that matters (not the shiniest idea)', time: '0 min (decision)' },
+                            { text: 'Deep work with structure: set a timer, break every 60 min', time: '3-4 hours' },
+                            { text: 'Build something, write something, or solve something real', time: 'Directed' }
+                        ]
+                    },
+                    {
+                        title: 'Reality Check & Wind Down',
+                        tasks: [
+                            { text: 'By 3 PM: Take a break. Ground yourself.', time: '20 min' },
+                            { text: 'Ask yourself: Am I speeding into mania or just productive?', time: 'Honest check' },
+                            { text: 'Evening: Slow your nervous system. Sleep matters more than finishing.', time: '60 min' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        function selectMood(mood) {
+            currentMood = mood;
+            completedTasks = {};
+
+            // Update button states
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Generate tasks
+            generateTasks();
+
+            // Update progress
+            updateProgress();
+
+            // Scroll to tasks
+            setTimeout(() => {
+                document.getElementById('tasksContainer').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        function generateTasks() {
+            const taskData = tasksByMood[currentMood];
+            let html = '';
+
+            taskData.groups.forEach(group => {
+                html += `
+                    <div class="task-group">
+                        <h3>${group.title}</h3>
+                        ${group.tasks.map((task, idx) => `
+                            <div class="task-item" id="task-${Object.keys(completedTasks).length + idx}" onclick="toggleTask(this)">
+                                <div class="checkbox"></div>
+                                <div class="task-text">${task.text}</div>
+                                <div class="task-time">${task.time}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+
+            document.getElementById('tasksContainer').innerHTML = html;
+            document.getElementById('tasksContainer').style.display = 'block';
+            document.getElementById('motivationBox').textContent = taskData.motivation;
+            document.getElementById('motivationBox').style.display = 'block';
+            document.getElementById('progressSection').style.display = 'block';
+        }
+
+        function toggleTask(element) {
+            const taskId = element.id;
+            completedTasks[taskId] = !completedTasks[taskId];
+            
+            if (completedTasks[taskId]) {
+                element.classList.add('completed');
+            } else {
+                element.classList.remove('completed');
+            }
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            if (!currentMood) return;
+
+            const totalTasks = document.querySelectorAll('.task-item').length;
+            const completedCount = Object.values(completedTasks).filter(v => v).length;
+            const percentage = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${completedCount}/${totalTasks}`;
+        }
+
+        function resetDay() {
+            currentMood = null;
+            completedTasks = {};
+            document.getElementById('tasksContainer').style.display = 'none';
+            document.getElementById('motivationBox').style.display = 'none';
+            document.getElementById('progressSection').style.display = 'none';
+            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('active'));
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('timeDisplay').textContent = timeStr;
+        }
+
+        // Update time on load and every minute
+        updateTime();
+        setInterval(updateTime, 60000);
+    </script>
+</body>
+</html>
